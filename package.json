@@ -1,0 +1,31 @@
+{
+  "name": "easy-loan-approval",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/local-schema.mjs && prisma generate --schema prisma/schema.local.prisma",
+    "dev": "next dev -p 3005",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "db:push": "node scripts/local-schema.mjs && prisma db push --schema prisma/schema.local.prisma",
+    "db:studio": "node scripts/local-schema.mjs && prisma studio --schema prisma/schema.local.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
+    "next": "^16.2.9",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "resend": "^6.12.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3"
+  }
+}

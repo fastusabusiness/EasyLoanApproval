@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// PostgreSQL in production (set DATABASE_URL in your host's env vars).
+// Local dev uses SQLite via the generated prisma/schema.local.prisma —
+// see scripts/local-schema.mjs and the db:* scripts in package.json.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Application {
+  id            String   @id // ELA-YYYY-XXXXXX, generated server-side
+  // "US" (default) or "ID" — which market/form variant the applicant used.
+  market        String   @default("US")
+  // "USD" or "IDR" — the currency `amount` (and decision amounts) are in.
+  currency      String   @default("USD")
+  fullName      String
+  email         String
+  phone         String
+  address       String
+  state         String?
+  postalCode    String? // non-US applicants
+  education     String? // non-US applicants (market-specific vocabulary)
+  employment    String? // non-US applicants (canonical English status, e.g. "Student")
+  dateOfBirth   DateTime
+  ssn           String? // stored unencrypted, digits only
+  // Government ID: type + the uploaded photo stored as a data URL (unencrypted).
+  idType        String?
+  idImage       String?
+  amount        Float
+  purpose       String
+  purposeDetail String?
+  status        String   @default("received")
+  // Loan decision — recorded by an admin when approving/funding. Null until set.
+  approvedAmount Float?
+  apr            Float? // annual percentage rate, e.g. 9.99
+  termMonths     Int?
+  disbursedAt    DateTime?
+  // Soft delete: hidden from the default list but never destroyed.
+  archivedAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  notes             ApplicationNote[]
+  events            ApplicationEvent[]
+  verificationLinks ApplicationVerificationLink[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ApplicationNote {
+  id            String      @id @default(cuid())
+  applicationId String
+  body          String
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model ApplicationEvent {
+  id            String      @id @default(cuid())
+  applicationId String
+  // "created" | "status" | "decision" | "note" | "verification" | "archived" | "unarchived"
+  type          String
+  message       String
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+// Admin-supplied links (e.g. an in-house ID-verification link) that get
+// emailed to the applicant. Each link tracks whether/when it was sent.
+model ApplicationVerificationLink {
+  id            String      @id @default(cuid())
+  applicationId String
+  label         String
+  url           String
+  sentAt        DateTime?
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+}
+
+model CareerApplication {
+  id         String    @id @default(cuid())
+  role       String    @default("Loan Marketer")
+  fullName   String
+  email      String
+  phone      String
+  location   String
+  experience String // free-text pitch/experience, optional on the form
+  // CV/resume upload, stored as a data URL (unencrypted, like the loan ID upload).
+  resumeName String?
+  resumeData String?
+  status     String    @default("applied")
+  // Soft delete: hidden from the default list but never destroyed.
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  notes             CareerNote[]
+  events            CareerEvent[]
+  verificationLinks CareerVerificationLink[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model CareerNote {
+  id                  String            @id @default(cuid())
+  careerApplicationId String
+  body                String
+  createdAt           DateTime          @default(now())
+  careerApplication   CareerApplication @relation(fields: [careerApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([careerApplicationId])
+}
+
+model CareerEvent {
+  id                  String            @id @default(cuid())
+  careerApplicationId String
+  // "created" | "status" | "note" | "verification" | "archived" | "unarchived"
+  type                String
+  message             String
+  createdAt           DateTime          @default(now())
+  careerApplication   CareerApplication @relation(fields: [careerApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([careerApplicationId])
+}
+
+// Admin-supplied links (e.g. an in-house identity/background-check link) that
+// get emailed to the candidate. Each link tracks whether/when it was sent.
+model CareerVerificationLink {
+  id                  String            @id @default(cuid())
+  careerApplicationId String
+  label               String
+  url                 String
+  sentAt              DateTime?
+  createdAt           DateTime          @default(now())
+  careerApplication   CareerApplication @relation(fields: [careerApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([careerApplicationId])
+}
+
+model SentEmail {
+  id          String   @id @default(cuid())
+  // "confirmation" | "admin-notice" | "careers" | "status-update" | "custom"
+  category    String
+  toAddress   String
+  fromAddress String
+  subject     String
+  // Plain-text version of the message, for the admin log view.
+  body        String
+  // "sent" | "skipped" | "failed"
+  status      String
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}

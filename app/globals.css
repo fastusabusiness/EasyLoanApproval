@@ -1,0 +1,258 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette — Easy Loan Approval: navy-blue + money-green identity,
+     matching the real logo (navy circle/swoosh, green dollar-bill accent).
+     Token NAMES are kept identical to Fast Loan Advance's on purpose — only
+     the values changed — so every component that already references these
+     tokens (text-navy, bg-leaf-soft, etc.) repaints automatically. */
+  --color-leaf: #43a83a;
+  --color-leaf-deep: #2e7d32;
+  --color-leaf-soft: #eaf6e4;
+  --color-forest: #16324a;
+  /* Logo circle gradient stops */
+  --color-leaf-bright: #5cbf4f;
+
+  /* Shared-component palette (apply form, admin, status, legal). */
+  --color-sun: #43a83a;
+  --color-sun-deep: #2e7d32;
+  --color-sun-soft: #eaf6e4;
+  --color-navy: #1c3a5e;
+  --color-ink: #13293f;
+}
+
+@theme inline {
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+@utility animate-step-in {
+  animation: step-in 0.25s ease-out;
+}
+
+@utility animate-sun-pulse {
+  animation: sun-pulse 5s ease-in-out infinite;
+}
+
+@utility animate-blob-a {
+  animation: blob-a 28s ease-in-out infinite;
+}
+
+@utility animate-blob-b {
+  animation: blob-b 36s ease-in-out infinite;
+}
+
+@utility animate-blob-c {
+  animation: blob-c 44s ease-in-out infinite;
+}
+
+@utility animate-spin-slow {
+  animation: spin-slow 90s linear infinite;
+}
+
+@utility animate-shimmer-line {
+  animation: shimmer-line 8s ease-in-out infinite;
+}
+
+@utility animate-float {
+  animation: float 7s ease-in-out infinite;
+}
+
+@utility animate-float-slow {
+  animation: float 11s ease-in-out infinite;
+}
+
+@utility animate-rise {
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-glow-pulse {
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+
+@utility animate-marquee {
+  animation: marquee 34s linear infinite;
+}
+
+@utility animate-progress {
+  animation: progress 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@utility animate-money-rise {
+  animation: money-rise 7s ease-in-out infinite;
+}
+
+@utility animate-flutter {
+  animation: flutter 3.2s ease-in-out infinite;
+}
+
+@utility animate-fly {
+  animation: fly 6s ease-in-out infinite;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sun-pulse {
+  0%, 100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, 0) scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+@keyframes blob-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(80px, -60px, 0) scale(1.1); }
+  66%      { transform: translate3d(-40px, 50px, 0) scale(0.95); }
+}
+
+@keyframes blob-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-110px, 70px, 0) scale(1.15); }
+}
+
+@keyframes blob-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(-60px, -40px, 0) scale(0.92); }
+  66%      { transform: translate3d(70px, 30px, 0) scale(1.08); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer-line {
+  0%, 100% { transform: translateX(-100%); opacity: 0; }
+  50%      { transform: translateX(100%);  opacity: 0.6; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.08); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes money-rise {
+  0%   { transform: translateY(30px) rotate(-10deg); opacity: 0; }
+  15%  { opacity: 0.95; }
+  85%  { opacity: 0.95; }
+  100% { transform: translateY(-150px) rotate(12deg); opacity: 0; }
+}
+
+@keyframes flutter {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(7deg); }
+}
+
+@keyframes fly {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-18px) rotate(1deg); }
+}
+
+/* Brand-styled range slider — yellow fill, white thumb with sun ring. */
+.brand-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--color-leaf) 0%,
+    var(--color-leaf) calc(var(--progress, 0) * 1%),
+    #e2e8f0 calc(var(--progress, 0) * 1%),
+    #e2e8f0 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+.brand-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: white;
+  border: 4px solid var(--color-leaf);
+  box-shadow: 0 4px 14px rgba(67, 168, 58, 0.45);
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.brand-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+.brand-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+  box-shadow: 0 4px 18px rgba(67, 168, 58, 0.6);
+}
+.brand-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: white;
+  border: 4px solid var(--color-leaf);
+  box-shadow: 0 4px 14px rgba(67, 168, 58, 0.45);
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+.brand-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+.brand-slider:focus-visible::-webkit-slider-thumb {
+  outline: 4px solid rgba(46, 125, 50, 0.4);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-step-in,
+  .animate-sun-pulse,
+  .animate-blob-a,
+  .animate-blob-b,
+  .animate-blob-c,
+  .animate-spin-slow,
+  .animate-shimmer-line,
+  .animate-float,
+  .animate-float-slow,
+  .animate-rise,
+  .animate-glow-pulse,
+  .animate-marquee,
+  .animate-progress,
+  .animate-money-rise,
+  .animate-flutter,
+  .animate-fly {
+    animation: none;
+  }
+}
