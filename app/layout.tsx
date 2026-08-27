@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Fraunces, IBM_Plex_Mono, Inter, Space_Grotesk } from "next/font/google";
 import TawkChat from "@/components/TawkChat";
 import "./globals.css";
 
@@ -14,7 +14,23 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const SITE_URL = process.env.APP_URL ?? "https://www.fastloanadvance.com";
+// Homepage-only typefaces (the "approval ledger" redesign) — kept separate
+// from the site-wide --font-display (Space Grotesk) so admin/apply/legal
+// pages are unaffected.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["500", "600", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-plex-mono",
+});
+
+const SITE_URL = process.env.APP_URL ?? "https://www.easyloansapprovals.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -46,7 +62,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${inter.variable} font-sans bg-white text-ink antialiased`}
+        className={`${spaceGrotesk.variable} ${inter.variable} ${fraunces.variable} ${plexMono.variable} font-sans bg-white text-ink antialiased`}
       >
         {children}
         <TawkChat />
