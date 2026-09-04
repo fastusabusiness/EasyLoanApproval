@@ -1,6 +1,5 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
-import LoanCalculator from "@/components/LoanCalculator";
 
 /* ------------------------------------------------------------------ */
 /* Data                                                                */
@@ -57,8 +56,7 @@ const ledgerRows = [
 ];
 
 // Illustrative only — computed at the homepage's indicative 9.99% APR over 24
-// months (same assumptions as LoanCalculator). Real terms depend on the
-// applicant's profile.
+// months. Real terms depend on the applicant's profile.
 const rateRows = [
   { amount: "$1,000", payment: "$46", interest: "$107" },
   { amount: "$5,000", payment: "$231", interest: "$536" },
@@ -74,11 +72,16 @@ const stamps = [
   },
   {
     mark: "2",
+    title: "Verified",
+    body: "Our agent will call you to verify a few additional details.",
+  },
+  {
+    mark: "3",
     title: "Reviewed",
     body: "We read your full picture, not just a score. Most reviews finish same-day.",
   },
   {
-    mark: "3",
+    mark: "4",
     title: "Approved",
     body: "Funds land in your account, on the exact terms you were quoted.",
   },
@@ -112,52 +115,12 @@ const faqs = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Signature element                                                   */
-/* ------------------------------------------------------------------ */
-
-// The page's one memorable mark: a circular ink stamp, curved text top and
-// bottom, a checkmark at center — "approval" made literal rather than
-// illustrated as speed (no flying cash, no motion-blurred mascot). Single
-// color via currentColor so it reads as stamped ink wherever it's placed.
-function ApprovalStamp({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 240 240" className={className} aria-hidden="true">
-      <defs>
-        <path id="stampTopArc" d="M 28 122 A 92 92 0 0 1 212 122" />
-        <path id="stampBottomArc" d="M 212 122 A 92 92 0 0 1 28 122" />
-      </defs>
-      <circle
-        cx="120" cy="122" r="113"
-        fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeDasharray="1.5 8" strokeLinecap="round" opacity="0.7"
-      />
-      <circle cx="120" cy="122" r="98" fill="none" stroke="currentColor" strokeWidth="4" />
-      <circle cx="120" cy="122" r="87" fill="none" stroke="currentColor" strokeWidth="1.25" opacity="0.55" />
-      <text fontSize="16.5" fontWeight="800" letterSpacing="2.5" fill="currentColor">
-        <textPath href="#stampTopArc" startOffset="50%" textAnchor="middle">
-          EASY LOAN APPROVAL
-        </textPath>
-      </text>
-      <text fontSize="11" fontWeight="700" letterSpacing="3.5" fill="currentColor" opacity="0.8">
-        <textPath href="#stampBottomArc" startOffset="50%" textAnchor="middle">
-          VERIFIED · DECIDED · FUNDED
-        </textPath>
-      </text>
-      <circle cx="120" cy="122" r="47" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.45" />
-      <path
-        d="M96 124 L113 141 L147 101"
-        fill="none" stroke="currentColor" strokeWidth="9"
-        strokeLinecap="round" strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Small pieces                                                        */
 /* ------------------------------------------------------------------ */
 
-function LedgerRow({
+// Styled as a HUD readout row inside the dark rate terminal — mono labels,
+// a glowing green figure, an icon "chip" instead of an outlined circle.
+function TerminalRow({
   icon,
   title,
   range,
@@ -169,17 +132,17 @@ function LedgerRow({
   body: string;
 }) {
   return (
-    <div className="grid grid-cols-[auto_1fr] items-start gap-4 border-t border-paper-line/80 py-6 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-6">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-navy/15 text-navy">
+    <div className="grid grid-cols-[auto_1fr] items-start gap-4 border-t border-white/10 py-5 first:border-t-0 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-6">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-leaf-bright/30 bg-leaf-bright/10 text-leaf-bright">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
           {icon}
         </svg>
       </span>
       <div>
-        <h3 className="font-serif text-xl font-semibold tracking-tight text-ink">{title}</h3>
-        <p className="mt-1 max-w-md text-sm leading-relaxed text-ink/60">{body}</p>
+        <h3 className="font-ledger text-sm font-semibold uppercase tracking-wide text-white">{title}</h3>
+        <p className="mt-1 max-w-md text-sm leading-relaxed text-white/50">{body}</p>
       </div>
-      <p className="font-ledger text-sm font-medium text-leaf-deep sm:text-right sm:text-base">
+      <p className="font-ledger text-sm font-semibold text-leaf-bright [text-shadow:0_0_12px_rgba(92,191,79,0.45)] sm:text-right sm:text-base">
         {range}
       </p>
     </div>
@@ -227,7 +190,6 @@ export default function Home() {
           <nav className="hidden items-center gap-7 text-sm font-medium text-ink/65 md:flex">
             <a href="#ledger" className="transition-colors hover:text-navy">The ledger</a>
             <a href="#how" className="transition-colors hover:text-navy">How it works</a>
-            <a href="#calculator" className="transition-colors hover:text-navy">Calculator</a>
             <a href="#faq" className="transition-colors hover:text-navy">FAQ</a>
             <Link href="/careers" className="transition-colors hover:text-navy">Careers</Link>
             <Link href="/status" className="transition-colors hover:text-navy">Check status</Link>
@@ -243,6 +205,10 @@ export default function Home() {
       </header>
 
       {/* ============================ HERO ============================ */}
+      {/* Centered "certificate" composition: the stamp reads as a seal
+          pinned above the verdict, not a decorative side illustration. A
+          torn-paper edge at the base carries the ledger/document motif into
+          the section boundary itself, not just inside cards. */}
       <section className="relative overflow-hidden bg-navy text-white">
         <div
           aria-hidden="true"
@@ -253,57 +219,58 @@ export default function Home() {
             backgroundSize: "44px 44px",
           }}
         />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 py-20 sm:py-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 font-ledger text-xs font-medium uppercase tracking-wider text-white/80">
-              <span className="h-1.5 w-1.5 rounded-full bg-leaf-bright" aria-hidden="true" />
-              Decisions in under 24 hours
-            </span>
 
-            <h1 className="font-serif mt-6 text-5xl font-medium leading-[1.05] tracking-tight sm:text-6xl">
-              A clear yes.
-              <br />
-              <span className="italic font-semibold text-leaf-bright">Not a runaround.</span>
-            </h1>
+        <div className="relative mx-auto flex max-w-2xl flex-col items-center px-6 pb-28 pt-20 text-center sm:pt-28">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3.5 py-1.5 font-ledger text-xs font-medium uppercase tracking-wider text-white/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-leaf-bright" aria-hidden="true" />
+            Decisions in under 24 hours
+          </span>
 
-            <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
-              Every application gets a real decision — not a maze of forms,
-              not a maybe. All credit profiles considered, and checking your
-              rate never touches your score.
-            </p>
+          <h1 className="font-serif mt-8 text-5xl font-medium leading-[1.05] tracking-tight sm:text-7xl">
+            A clear yes.
+            <br />
+            <span className="italic font-semibold text-leaf-bright">Not a runaround.</span>
+          </h1>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/apply"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-navy shadow-lg transition-transform hover:-translate-y-0.5"
-              >
-                Apply now
-                <span aria-hidden="true">→</span>
-              </Link>
-              <a
-                href="#calculator"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 px-7 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
-              >
-                See my payment
-              </a>
-            </div>
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
+            Every application gets a real decision — not a maze of forms,
+            not a maybe. All credit profiles considered, and checking your
+            rate never touches your score.
+          </p>
 
-            <dl className="font-ledger mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6 text-xs uppercase tracking-wider text-white/60">
-              {trustStats.map((s) => (
-                <div key={s.label} className="flex items-baseline gap-2">
-                  <dt className="text-base font-semibold text-white">{s.value}</dt>
-                  <dd>{s.label}</dd>
-                </div>
-              ))}
-            </dl>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/apply"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-navy shadow-lg transition-transform hover:-translate-y-0.5"
+            >
+              Apply now
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative h-[19rem] w-[19rem] sm:h-[24rem] sm:w-[24rem]">
-              <ApprovalStamp className="animate-stamp-drop h-full w-full text-leaf-bright drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)]" />
-            </div>
-          </div>
+          <dl className="font-ledger mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-dotted border-white/25 pt-6 text-xs uppercase tracking-wider text-white/60">
+            {trustStats.map((s) => (
+              <div key={s.label} className="flex items-baseline gap-2">
+                <dt className="text-base font-semibold text-white">{s.value}</dt>
+                <dd>{s.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
+
+        <svg
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 block h-7 w-full text-paper"
+          preserveAspectRatio="none"
+          viewBox="0 0 200 20"
+        >
+          <defs>
+            <pattern id="heroTornEdge" width="10" height="20" patternUnits="userSpaceOnUse">
+              <polygon points="0,20 5,0 10,20" fill="currentColor" />
+            </pattern>
+          </defs>
+          <rect width="200" height="20" fill="url(#heroTornEdge)" />
+        </svg>
       </section>
 
       {/* ========================== THE LEDGER ========================== */}
@@ -320,41 +287,62 @@ export default function Home() {
             is what you pay.
           </p>
 
-          <div className="mt-4">
-            {ledgerRows.map((row) => (
-              <LedgerRow key={row.title} {...row} />
-            ))}
-            <div className="border-t border-paper-line/80" />
-          </div>
+          {/* Rate terminal — a "screen" embedded in the page rather than a
+              plain list/table, echoing the hero's dark navy + grid texture
+              so the contrast reads as deliberate, not mismatched. */}
+          <div className="relative mt-10 overflow-hidden rounded-2xl bg-ink shadow-2xl shadow-ink/20">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-[0.06]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+                backgroundSize: "28px 28px",
+              }}
+            />
 
-          <div className="mt-16 overflow-hidden rounded-2xl border border-paper-line bg-white">
-            <div className="border-b border-paper-line px-6 py-4">
-              <p className="text-sm font-semibold text-ink">
-                Sample monthly payments
-              </p>
-              <p className="text-xs text-ink/50">
-                Illustrative at 9.99% APR over 24 months — your actual rate
-                depends on your profile.
-              </p>
+            <div className="relative flex items-center justify-between border-b border-white/10 px-6 py-3.5 sm:px-8">
+              <span className="font-ledger flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-leaf-bright">
+                <span className="relative flex h-2 w-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf-bright opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-leaf-bright" />
+                </span>
+                Live rate terminal
+              </span>
+              <span className="font-ledger hidden text-xs text-white/35 sm:inline">RATES.ELA</span>
             </div>
-            <table className="font-ledger w-full text-sm">
-              <thead>
-                <tr className="border-b border-paper-line text-left text-xs uppercase tracking-wider text-ink/45">
-                  <th className="px-6 py-3 font-medium">Amount</th>
-                  <th className="px-6 py-3 font-medium">Monthly</th>
-                  <th className="px-6 py-3 font-medium">Total interest</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rateRows.map((row) => (
-                  <tr key={row.amount} className="border-b border-paper-line/70 last:border-0">
-                    <td className="px-6 py-3.5 font-semibold text-ink">{row.amount}</td>
-                    <td className="px-6 py-3.5 text-ink/75">{row.payment}</td>
-                    <td className="px-6 py-3.5 text-ink/75">{row.interest}</td>
+
+            <div className="relative px-6 sm:px-8">
+              {ledgerRows.map((row) => (
+                <TerminalRow key={row.title} {...row} />
+              ))}
+            </div>
+
+            <div className="relative border-t border-white/10 px-6 py-5 sm:px-8">
+              <p className="font-ledger text-xs uppercase tracking-wider text-white/40">
+                Sample monthly payments · 9.99% APR / 24mo
+              </p>
+              <table className="font-ledger mt-3 w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wider text-white/35">
+                    <th className="py-2 font-medium">Amount</th>
+                    <th className="py-2 font-medium">Monthly</th>
+                    <th className="py-2 font-medium">Interest</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {rateRows.map((row) => (
+                    <tr key={row.amount} className="border-t border-white/5">
+                      <td className="py-2.5 font-semibold text-white">{row.amount}</td>
+                      <td className="py-2.5 text-leaf-bright [text-shadow:0_0_12px_rgba(92,191,79,0.5)]">
+                        {row.payment}
+                      </td>
+                      <td className="py-2.5 text-white/55">{row.interest}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -366,7 +354,7 @@ export default function Home() {
             How approval works
           </p>
           <h2 className="font-serif mt-3 text-4xl font-medium tracking-tight text-ink sm:text-5xl">
-            Three stamps, then it&apos;s funded.
+            Four stamps, then it&apos;s funded.
           </h2>
 
           <div className="mt-14 flex flex-col gap-10 sm:flex-row sm:gap-6">
@@ -375,14 +363,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* =========================== CALCULATOR ========================== */}
-      {/* LoanCalculator brings its own heading/card (and a small -mt-4 that
-          was designed to tuck under a hero) — no extra label here to avoid
-          a redundant, overlapping eyebrow above it. */}
-      <section id="calculator" className="scroll-mt-24 bg-paper pt-8 sm:pt-10">
-        <LoanCalculator />
       </section>
 
       {/* ============================== FAQ =============================== */}

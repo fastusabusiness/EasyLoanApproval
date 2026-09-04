@@ -31,15 +31,22 @@ const EMPTY_FORM: ApplicationPayload = {
 
 const QUICK_AMOUNTS = ["1,000", "5,000", "10,000", "25,000"];
 
-const STEPS = ["About you", "Your loan", "Review & submit"];
+const STEPS = ["Your details", "Review & submit"];
 
 // Which validation errors belong to which step, so Continue only checks the
-// fields the user has seen.
+// fields the user has seen. DOB and SSN are collected on step 1 (alongside
+// the review), everything else is on step 0.
 const STEP_FIELDS: (keyof FieldErrors)[][] = [
-  ["fullName", "email", "phone", "address", "state"],
-  ["amount", "purpose", "purposeDetail"],
-  ["dob", "ssn", "idType", "idImage"],
+  [
+    "fullName", "email", "phone", "address", "state",
+    "amount", "purpose", "purposeDetail",
+    "idType", "idImage",
+  ],
+  ["dob", "ssn"],
 ];
+
+const sectionHeadingClass =
+  "font-display text-sm font-bold uppercase tracking-wider text-navy/60";
 
 // Read an image file and re-encode it downscaled to keep the upload small
 // (legible IDs stay well under ~500 KB), which also keeps us clear of
@@ -81,7 +88,7 @@ const baseInputClass = (hasError: boolean) =>
   `rounded-xl border-2 bg-white px-4 py-3 text-ink placeholder:text-slate-400 transition-all focus:outline-none focus:ring-4 ${
     hasError
       ? "border-red-400 ring-red-100 focus:border-red-500 focus:ring-red-100"
-      : "border-slate-200 focus:border-sun focus:ring-sun/20 hover:border-slate-300"
+      : "border-slate-200 focus:border-navy focus:ring-navy/20 hover:border-slate-300"
   }`;
 
 const inputClass = (hasError: boolean) => `w-full ${baseInputClass(hasError)}`;
@@ -389,7 +396,7 @@ export default function ApplicationForm() {
               <div
                 key={label}
                 className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
-                  i <= step ? "bg-sun" : "bg-slate-100"
+                  i <= step ? "bg-navy" : "bg-slate-100"
                 }`}
               />
             ))}
@@ -399,6 +406,7 @@ export default function ApplicationForm() {
 
       {step === 0 && (
         <div key="step-0" className="animate-step-in space-y-6">
+          <p className={sectionHeadingClass}>Your information</p>
           <div>
             <label htmlFor="fullName" className={labelClass}>
               Full Name
@@ -514,11 +522,8 @@ export default function ApplicationForm() {
               <FieldError id="state-error" message={errors.state} />
             </div>
           </div>
-        </div>
-      )}
 
-      {step === 1 && (
-        <div key="step-1" className="animate-step-in space-y-6">
+          <p className={`${sectionHeadingClass} pt-2`}>Your loan</p>
           <div>
             <label htmlFor="amount" className={labelClass}>
               Loan Amount Needed
@@ -550,8 +555,8 @@ export default function ApplicationForm() {
                     aria-pressed={selected}
                     className={`rounded-full border-2 px-4 py-1.5 text-sm font-bold transition-all ${
                       selected
-                        ? "border-sun bg-sun text-white"
-                        : "border-slate-200 text-slate-500 hover:border-sun hover:text-ink"
+                        ? "border-navy bg-navy text-white"
+                        : "border-slate-200 text-slate-500 hover:border-navy hover:text-ink"
                     }`}
                   >
                     ${qa}
@@ -570,12 +575,12 @@ export default function ApplicationForm() {
                 return (
                   <label
                     key={p}
-                    className={`cursor-pointer rounded-xl border-2 px-3 py-3 text-center text-sm font-bold transition-all has-focus-visible:ring-4 has-focus-visible:ring-sun/30 ${
+                    className={`cursor-pointer rounded-xl border-2 px-3 py-3 text-center text-sm font-bold transition-all has-focus-visible:ring-4 has-focus-visible:ring-navy/30 ${
                       selected
-                        ? "border-sun bg-sun-soft text-ink shadow-sm"
+                        ? "border-navy bg-navy/10 text-ink shadow-sm"
                         : errors.purpose
                           ? "border-red-300 text-slate-500"
-                          : "border-slate-200 text-slate-500 hover:border-sun/60 hover:text-ink"
+                          : "border-slate-200 text-slate-500 hover:border-navy/60 hover:text-ink"
                     }`}
                   >
                     <input
@@ -617,60 +622,10 @@ export default function ApplicationForm() {
             />
             <FieldError id="purposeDetail-error" message={errors.purposeDetail} />
           </div>
-        </div>
-      )}
 
-      {step === 2 && (
-        <div key="step-2" className="animate-step-in space-y-5">
-          <p className="text-sm text-slate-600">
-            Almost there — check everything looks right before you submit.
-          </p>
-
-          <section className="rounded-2xl border-2 border-slate-100 px-5 py-4">
-            <h3 className="font-display font-bold text-ink">
-              Verify your identity
-            </h3>
-
-            <div className="mt-4">
-              <div>
-                <label htmlFor="dob" className={labelClass}>
-                  Date of Birth
-                </label>
-                <input
-                  id="dob"
-                  name="dob"
-                  type="date"
-                  aria-label="Date of birth (month/day/year)"
-                  value={dobValue}
-                  onChange={(e) => handleDobChange(e.target.value)}
-                  aria-invalid={!!errors.dob}
-                  aria-describedby={errors.dob ? "dob-error" : undefined}
-                  className={`${baseInputClass(!!errors.dob)} max-w-56`}
-                />
-                <FieldError id="dob-error" message={errors.dob} />
-              </div>
-
-              <div className="mt-5">
-                <label htmlFor="ssn" className={labelClass}>
-                  Social Security Number
-                </label>
-                <input
-                  id="ssn"
-                  name="ssn"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="123-45-6789"
-                  maxLength={11}
-                  value={form.ssn}
-                  onChange={(e) => set("ssn")(formatSsn(e.target.value))}
-                  aria-invalid={!!errors.ssn}
-                  aria-describedby={errors.ssn ? "ssn-error" : undefined}
-                  className={`${inputClass(!!errors.ssn)} max-w-56`}
-                />
-                <FieldError id="ssn-error" message={errors.ssn} />
-              </div>
-
-              <fieldset className="mt-5">
+          <p className={`${sectionHeadingClass} pt-2`}>Government ID</p>
+          <div>
+              <fieldset>
                 <legend className={labelClass}>ID Type</legend>
                 <div className="grid grid-cols-2 gap-2">
                   {ID_TYPES.map((t) => {
@@ -678,12 +633,12 @@ export default function ApplicationForm() {
                     return (
                       <label
                         key={t}
-                        className={`cursor-pointer rounded-xl border-2 px-3 py-3 text-center text-sm font-bold transition-all has-focus-visible:ring-4 has-focus-visible:ring-sun/30 ${
+                        className={`cursor-pointer rounded-xl border-2 px-3 py-3 text-center text-sm font-bold transition-all has-focus-visible:ring-4 has-focus-visible:ring-navy/30 ${
                           selected
-                            ? "border-sun bg-sun-soft text-ink shadow-sm"
+                            ? "border-navy bg-navy/10 text-ink shadow-sm"
                             : errors.idType
                               ? "border-red-300 text-slate-500"
-                              : "border-slate-200 text-slate-500 hover:border-sun/60 hover:text-ink"
+                              : "border-slate-200 text-slate-500 hover:border-navy/60 hover:text-ink"
                         }`}
                       >
                         <input
@@ -710,7 +665,7 @@ export default function ApplicationForm() {
                     className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
                       errors.idImage
                         ? "border-red-400 bg-red-50/40"
-                        : "border-slate-300 hover:border-sun hover:bg-sun-soft/40"
+                        : "border-slate-300 hover:border-navy hover:bg-navy/10"
                     }`}
                   >
                     <input
@@ -773,6 +728,58 @@ export default function ApplicationForm() {
                 )}
               </div>
             </div>
+          </div>
+      )}
+
+      {step === 1 && (
+        <div key="step-1" className="animate-step-in space-y-5">
+          <p className="text-sm text-slate-600">
+            Almost there — check everything looks right before you submit.
+          </p>
+
+          <section className="rounded-2xl border-2 border-slate-100 px-5 py-4">
+            <h3 className="font-display font-bold text-ink">
+              Verify your identity
+            </h3>
+            <div className="mt-4">
+              <div>
+                <label htmlFor="dob" className={labelClass}>
+                  Date of Birth
+                </label>
+                <input
+                  id="dob"
+                  name="dob"
+                  type="date"
+                  aria-label="Date of birth (month/day/year)"
+                  value={dobValue}
+                  onChange={(e) => handleDobChange(e.target.value)}
+                  aria-invalid={!!errors.dob}
+                  aria-describedby={errors.dob ? "dob-error" : undefined}
+                  className={`${baseInputClass(!!errors.dob)} max-w-56`}
+                />
+                <FieldError id="dob-error" message={errors.dob} />
+              </div>
+
+              <div className="mt-5">
+                <label htmlFor="ssn" className={labelClass}>
+                  Social Security Number
+                </label>
+                <input
+                  id="ssn"
+                  name="ssn"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="123-45-6789"
+                  maxLength={11}
+                  value={form.ssn}
+                  onChange={(e) => set("ssn")(formatSsn(e.target.value))}
+                  aria-invalid={!!errors.ssn}
+                  aria-describedby={errors.ssn ? "ssn-error" : undefined}
+                  className={`${inputClass(!!errors.ssn)} max-w-56`}
+                />
+                <FieldError id="ssn-error" message={errors.ssn} />
+              </div>
+            </div>
           </section>
 
           <section className="rounded-2xl border-2 border-slate-100 px-5 py-4">
@@ -800,7 +807,7 @@ export default function ApplicationForm() {
               <h3 className="font-display font-bold text-ink">Your loan</h3>
               <button
                 type="button"
-                onClick={() => goToStep(1)}
+                onClick={() => goToStep(0)}
                 className="text-sm font-bold text-navy underline-offset-4 hover:underline"
               >
                 Edit
@@ -814,10 +821,27 @@ export default function ApplicationForm() {
               )}
             </dl>
           </section>
+
+          <section className="rounded-2xl border-2 border-slate-100 px-5 py-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold text-ink">Government ID</h3>
+              <button
+                type="button"
+                onClick={() => goToStep(0)}
+                className="text-sm font-bold text-navy underline-offset-4 hover:underline"
+              >
+                Edit
+              </button>
+            </div>
+            <dl className="mt-1 divide-y divide-slate-100">
+              <ReviewRow label="ID Type" value={form.idType || "—"} />
+              <ReviewRow label="ID Photo" value={form.idImage ? "Uploaded ✓" : "—"} />
+            </dl>
+          </section>
         </div>
       )}
 
-      {step === 2 && <Turnstile className="mt-6 flex justify-center" />}
+      {step === 1 && <Turnstile className="mt-6 flex justify-center" />}
 
       {submitError && (
         <div
@@ -842,7 +866,7 @@ export default function ApplicationForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="group flex-1 rounded-full bg-sun px-8 py-4 font-display text-lg font-bold text-white shadow-lg shadow-sun/40 transition-all duration-200 hover:-translate-y-0.5 hover:bg-sun-deep hover:shadow-xl hover:shadow-sun/50 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-navy disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+          className="group flex-1 rounded-full bg-navy px-8 py-4 font-display text-lg font-bold text-white shadow-lg shadow-navy/40 transition-all duration-200 hover:-translate-y-0.5 hover:bg-ink hover:shadow-xl hover:shadow-navy/50 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-navy disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
         >
           {submitting ? (
             <span className="inline-flex items-center justify-center gap-2.5">

@@ -48,33 +48,6 @@ export default function ApplyPage() {
             <ApplicationForm />
           </div>
         </div>
-
-        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center text-sm text-slate-500">
-          <Link
-            href="/apply/indonesia"
-            className="font-bold text-navy underline-offset-2 hover:underline"
-          >
-            🇮🇩 Ajukan dalam Rupiah
-          </Link>
-          <Link
-            href="/apply/brazil"
-            className="font-bold text-navy underline-offset-2 hover:underline"
-          >
-            🇧🇷 Solicite em Reais
-          </Link>
-          <Link
-            href="/apply/myanmar"
-            className="font-bold text-navy underline-offset-2 hover:underline"
-          >
-            🇲🇲 Apply in Kyats
-          </Link>
-          <Link
-            href="/apply/mexico"
-            className="font-bold text-navy underline-offset-2 hover:underline"
-          >
-            🇲🇽 Solicita en Pesos
-          </Link>
-        </p>
       </div>
     </main>
   );
