@@ -18,3 +18,5 @@ prisma/schema.local.prisma
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+.vercel
+.env*

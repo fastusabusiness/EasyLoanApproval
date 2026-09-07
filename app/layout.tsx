@@ -30,7 +30,25 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-const SITE_URL = process.env.APP_URL ?? "https://www.easyloansapprovals.com";
+// APP_URL is operator-supplied (Vercel env var) and easy to paste without a
+// scheme (e.g. "easyloansapprovals.com" instead of "https://..."), which
+// crashes `new URL()` below and takes down the entire production build.
+// Normalize it defensively so a malformed value falls back instead of
+// breaking the deploy.
+function resolveSiteUrl(): string {
+  const fallback = "https://www.easyloansapprovals.com";
+  const raw = process.env.APP_URL?.trim();
+  if (!raw) return fallback;
+  const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    new URL(withScheme);
+    return withScheme;
+  } catch {
+    return fallback;
+  }
+}
+
+const SITE_URL = resolveSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
