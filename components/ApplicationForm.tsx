@@ -418,7 +418,7 @@ export default function ApplicationForm() {
                 name="fullName"
                 type="text"
                 autoComplete="name"
-                placeholder="Jane Appleseed"
+                placeholder="Sarah Johnson"
                 value={form.fullName}
                 onChange={(e) => set("fullName")(e.target.value)}
                 aria-invalid={!!errors.fullName}
