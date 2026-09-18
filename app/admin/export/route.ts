@@ -67,6 +67,7 @@ export async function GET(req: Request) {
   const apps = await prisma.application.findMany({
     where,
     orderBy: { createdAt: "desc" },
+    omit: { idImage: true },
   });
 
   const header = COLUMNS.join(",");

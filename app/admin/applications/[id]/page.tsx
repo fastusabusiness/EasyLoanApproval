@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 import ArchiveButton from "@/components/admin/ArchiveButton";
 import DecisionForm from "@/components/admin/DecisionForm";
-import IdThumbnail from "@/components/admin/IdThumbnail";
+import IdViewer from "@/components/admin/IdViewer";
 import NoteForm from "@/components/admin/NoteForm";
 import StatusSelect from "@/components/admin/StatusSelect";
 import VerificationLinksForm from "@/components/admin/VerificationLinksForm";
@@ -83,14 +83,19 @@ export default async function ApplicationDetailPage({
 
   const { id } = await params;
 
-  const application = await prisma.application.findUnique({
-    where: { id },
-    include: {
-      notes: { orderBy: { createdAt: "desc" } },
-      events: { orderBy: { createdAt: "desc" } },
-      verificationLinks: { orderBy: { createdAt: "asc" } },
-    },
-  });
+  const [application, idImageCount] = await Promise.all([
+    prisma.application.findUnique({
+      where: { id },
+      // The ID photo loads on demand via IdViewer, not with the page.
+      omit: { idImage: true },
+      include: {
+        notes: { orderBy: { createdAt: "desc" } },
+        events: { orderBy: { createdAt: "desc" } },
+        verificationLinks: { orderBy: { createdAt: "asc" } },
+      },
+    }),
+    prisma.application.count({ where: { id, idImage: { not: null } } }),
+  ]);
   if (!application) notFound();
 
   const a = application;
@@ -198,9 +203,9 @@ export default async function ApplicationDetailPage({
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                 ID document
               </p>
-              {a.idImage ? (
-                <IdThumbnail
-                  src={a.idImage}
+              {idImageCount > 0 ? (
+                <IdViewer
+                  applicationId={a.id}
                   label={a.idType ?? "ID"}
                   name={a.fullName}
                 />

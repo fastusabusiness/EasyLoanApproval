@@ -53,7 +53,10 @@ export async function lookupStatus(
     return { state: "not_found" };
   }
 
-  const app = await prisma.application.findUnique({ where: { id } });
+  const app = await prisma.application.findUnique({
+    where: { id },
+    omit: { idImage: true },
+  });
   if (!app || app.email.toLowerCase() !== email) {
     return { state: "not_found" };
   }

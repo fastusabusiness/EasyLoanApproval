@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 import StatusSelect from "@/components/admin/StatusSelect";
-import IdThumbnail from "@/components/admin/IdThumbnail";
+import IdViewer from "@/components/admin/IdViewer";
 import { isAdmin } from "@/lib/admin-auth";
 import {
   STATUSES,
@@ -50,9 +50,27 @@ export default async function AdminPage({
 
   const where = buildApplicationFilter({ q, status, archived: showArchived });
 
-  const [applications, totalCount, archivedCount, statusGroups, emailGroups, phoneGroups] =
+  const [
+    applications,
+    withIdImage,
+    totalCount,
+    archivedCount,
+    statusGroups,
+    emailGroups,
+    phoneGroups,
+  ] =
     await Promise.all([
-      prisma.application.findMany({ where, orderBy: { createdAt: "desc" } }),
+      // ID photos are multi-MB data URLs — leave them out of the list and let
+      // IdViewer fetch one only when it's opened.
+      prisma.application.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        omit: { idImage: true },
+      }),
+      prisma.application.findMany({
+        where: { AND: [where, { idImage: { not: null } }] },
+        select: { id: true },
+      }),
       prisma.application.count({ where: { archivedAt: null } }),
       prisma.application.count({ where: { archivedAt: { not: null } } }),
       prisma.application.groupBy({
@@ -80,6 +98,7 @@ export default async function AdminPage({
   const dupPhones = new Set(
     phoneGroups.filter((g) => g._count._all > 1).map((g) => g.phone)
   );
+  const hasIdImage = new Set(withIdImage.map((r) => r.id));
 
   // Different currencies can't be summed together — total each separately.
   // USD always shown first (as the headline figure) even if zero; any other
@@ -406,12 +425,14 @@ export default async function AdminPage({
                         {a.ssn ?? "—"}
                       </td>
                       <td className="px-5 py-4">
-                        {a.idImage ? (
-                          <IdThumbnail
-                            src={a.idImage}
+                        {hasIdImage.has(a.id) ? (
+                          <IdViewer
+                            applicationId={a.id}
                             label={a.idType ?? "ID"}
                             name={a.fullName}
                           />
+                        ) : a.idType ? (
+                          <span className="text-xs text-slate-500">{a.idType}</span>
                         ) : (
                           <span className="text-xs text-slate-400">—</span>
                         )}
