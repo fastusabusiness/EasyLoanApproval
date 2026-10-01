@@ -18,12 +18,14 @@ export type EmailLogStatus = "sent" | "skipped" | "failed";
 
 const MAX_BODY_CHARS = 5000;
 
-// Crude HTML → text for the log view: drop tags, decode the handful of
-// entities our templates emit, and collapse runs of whitespace. Good enough
-// for a readable record — this is never re-sent, only displayed.
+// Crude HTML → text for the log view and for the plain-text alternative that
+// goes out with every email: drop tags, decode the handful of entities our
+// templates emit, and collapse runs of whitespace.
 export function htmlToText(html: string): string {
   return html
     .replace(/<\s*(br|\/p|\/h1|\/h2|\/tr)\s*\/?>/gi, "\n")
+    // Label/value table cells would otherwise run together ("Amount$7,500").
+    .replace(/<\s*\/td\s*>\s*<\s*td[^>]*>/gi, ": ")
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")

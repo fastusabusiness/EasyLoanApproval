@@ -54,6 +54,17 @@ export async function emailApplicantConfirmation(input: {
   });
 }
 
+// Dates of birth are stored as UTC midnight — format in UTC so the day can't
+// shift backwards for anyone reading this east/west of the server.
+function formatDob(d: Date): string {
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export async function emailAdminNewApplication(input: {
   id: string;
   fullName: string;
@@ -61,6 +72,11 @@ export async function emailAdminNewApplication(input: {
   amount: number;
   currency?: string;
   purpose: string;
+  phone: string;
+  address: string;
+  state?: string | null;
+  postalCode?: string | null;
+  dateOfBirth: Date;
 }) {
   if (!ADMIN_EMAIL) {
     console.warn(
@@ -68,6 +84,9 @@ export async function emailAdminNewApplication(input: {
     );
     return;
   }
+  const fullAddress = [input.address, input.state, input.postalCode]
+    .filter(Boolean)
+    .join(", ");
   const body = `
     <h1 style="margin:0 0 16px;font-size:22px;font-weight:800;color:#0f2a18;">New application submitted</h1>
     <p style="margin:0 0 16px;font-size:14px;line-height:1.55;color:#334155;">
@@ -75,7 +94,10 @@ export async function emailAdminNewApplication(input: {
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
       <tr><td style="padding:6px 0;color:#64748b;font-size:13px;width:35%;">Applicant</td><td style="padding:6px 0;font-weight:700;font-size:15px;">${escapeHtml(input.fullName)}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Date of birth</td><td style="padding:6px 0;font-size:15px;">${escapeHtml(formatDob(input.dateOfBirth))}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Address</td><td style="padding:6px 0;font-size:15px;">${escapeHtml(fullAddress)}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Email</td><td style="padding:6px 0;font-size:15px;">${escapeHtml(input.email)}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Phone</td><td style="padding:6px 0;font-size:15px;">${escapeHtml(input.phone)}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Amount requested</td><td style="padding:6px 0;font-weight:700;font-size:15px;">${escapeHtml(formatMoney(input.amount, input.currency))}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Purpose</td><td style="padding:6px 0;font-size:15px;">${escapeHtml(input.purpose)}</td></tr>
       <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Reference</td><td style="padding:6px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;color:#2e7d32;">${escapeHtml(input.id)}</td></tr>

@@ -138,6 +138,11 @@ export async function POST(req: Request) {
           amount: values.amount,
           currency: values.currency,
           purpose: values.purpose,
+          phone: values.phone,
+          address: values.address,
+          state: values.state,
+          postalCode: values.postalCode,
+          dateOfBirth: values.dateOfBirth,
         }),
       ]);
       return NextResponse.json({ id }, { status: 201 });
